@@ -375,7 +375,7 @@ async function runSingle(canvas, mode, { lang, modelId, enhanceLevel, pageLabel,
     }
 
     const r = await tesseract.recognize(imgUrl, {
-      langs: lang, psm: spec.psm, rotateAuto: false, minConf: mode === 'table' ? 15 : 20,
+      langs: lang, psm: spec.psm, rotateAuto: false, minConf: mode === 'table' ? 8 : 5,
       onText,
     });
     let table = null;
@@ -839,7 +839,7 @@ window.__ocrStudio = {
         langs: lang,
         psm: psm ?? spec.psm,
         rotateAuto: rotateAuto ?? spec.rotateAuto,
-        minConf: minConf ?? 20,
+        minConf: minConf ?? 5,
       });
       let table = null;
       if (mode === 'table') {

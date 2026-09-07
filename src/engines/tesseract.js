@@ -63,6 +63,9 @@ export async function recognize(image, opts = {}) {
   const options = {
     tessedit_pageseg_mode: psm,
     preserve_interword_spaces: '1',
+    tessedit_char_whitelist: '',
+    classify_bln_fuzzy_level: '1',
+    textord_min_linesize: '2.5',
   };
   if (opts.rotateAuto) options.rotateAuto = true;
   let streamBuf = '';
@@ -85,14 +88,13 @@ export async function recognize(image, opts = {}) {
   const output = { tsv: true };
   if (!warmedUp) {
     // First recognize after init can race the OCR engine (returns empty until
-    // it is truly ready). Nudge it repeatedly with a blank image and only
-    // proceed once the engine actually answers (TSV present).
-    for (let i = 0; i < 120; i++) {
+    // it is truly ready). Nudge it with a blank image until it answers.
+    for (let i = 0; i < 15; i++) {
       try {
         const w = await worker.recognize(makeWarmup(), { tessedit_pageseg_mode: 3 }, { tsv: true });
         if (w.data && w.data.tsv && w.data.tsv.trim()) break;
       } catch { /* keep waiting */ }
-      await new Promise((res) => setTimeout(res, 250));
+      await new Promise((res) => setTimeout(res, 200));
     }
     warmedUp = true;
   }

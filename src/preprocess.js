@@ -64,8 +64,8 @@ export function enhance(canvas, { mode = 'print', level = 'auto', stripLines = f
   // 1) Upscale: aim for a max dimension in a sweet spot for OCR.
   let factor = 1;
   const maxDim = Math.max(w, h);
-  const target = mode === 'screen' ? 2200 : 2600;
-  if (maxDim < 1100) factor = Math.min(3, Math.ceil(target / maxDim));
+  const target = mode === 'screen' ? 2400 : 3000;
+  if (maxDim < 1400) factor = Math.min(3, Math.ceil(target / maxDim));
   if (factor > 1) {
     const c2 = document.createElement('canvas');
     c2.width = Math.round(w * factor);
@@ -152,9 +152,11 @@ export function enhance(canvas, { mode = 'print', level = 'auto', stripLines = f
     }
     if (scale > 0) log.push('contrast stretched');
 
-    // 4) Mild unsharp mask — helps crisp UI/screenshot glyphs.
-    if (mode === 'screen') {
-      const radius = 1, amt = 0.45;
+    // 4) Unsharp mask — crisps up glyphs for better OCR accuracy.
+    //    Stronger for screenshots (sharp UI text), lighter for printed docs.
+    {
+      const radius = mode === 'screen' ? 1 : 1;
+      const amt = mode === 'screen' ? 0.55 : 0.35;
       const blur = boxBlur(d, w, h, radius);
       for (let j = 0; j < lum.length; j++) {
         const v = d[j * 4] + amt * (d[j * 4] - blur[j * 4]);
