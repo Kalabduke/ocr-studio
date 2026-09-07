@@ -105,6 +105,21 @@ button { font-family: inherit; }
   gap: 14px;
   justify-content: center;
 }
+.brand--corner {
+  justify-content: flex-start;
+  gap: 10px;
+}
+.brand--corner .logo {
+  width: 36px;
+  height: 36px;
+}
+.brand--corner .logo-letter {
+  font-size: 20px;
+}
+.brand--corner .brand-text h1 {
+  font-size: 18px;
+  letter-spacing: .08em;
+}
 .logo {
   width: 52px;
   height: 52px;
@@ -191,7 +206,6 @@ button { font-family: inherit; }
 @media (max-width: 920px) {
   .layout { grid-template-columns: 1fr; }
   .headbar { flex-wrap: wrap; justify-content: center; }
-  .topnav { order: 3; width: 100%; justify-content: center; gap: 34px; }
   .privacy-pill { display: none; }
   .perkbar { flex-direction: column; }
   .perk { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, .18); max-width: none; }
