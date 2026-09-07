@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OCR — accurate text from images & PDFs, in your browser</title>
+<meta name="description" content="Private, 100% in-browser OCR for printed documents, screenshots, handwriting and tables. Nothing you scan ever leaves your device.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.8em' font-size='78' font-family='Georgia,serif' font-weight='bold'>O</text></svg>">
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="tb-left">100% PRIVATE · NOTHING LEAVES THIS DEVICE</span>
+    <span class="tb-right">OFFLINE</span><span class="tb-sep">|</span><span class="tb-right">FREE</span><span class="tb-sep">|</span><span class="tb-right">NO ACCOUNT</span>
+  </div>
+</header>
+<header class="headbar">
+  <nav class="topnav">
+    <a href="#drop">Home</a>
+    <a href="#modeSeg">Modes</a>
+    <a href="#help">Help</a>
+  </nav>
+  <div class="brand">
+    <span class="logo" id="logoSlot" aria-label="OCR logo"><span class="logo-letter">O</span></span>
+    <div class="brand-text">
+      <h1>OCR</h1>
+      <p>Text from images &amp; PDFs — 100% in your browser. Nothing leaves this device.</p>
+    </div>
+  </div>
+  <div class="privacy-pill">PRIVATE · OFFLINE · FREE</div>
+</header>
+<div class="perkbar">
+  <div class="perk"><b>IN-BROWSER OCR</b><small>No uploads, no servers</small></div>
+  <div class="perk"><b>UP TO 20 MB</b><small>Per file · PNG · JPG · WEBP · BMP · PDF</small></div>
+  <div class="perk"><b>UNLIMITED OUTPUT</b><small>No line or paragraph limits</small></div>
+</div>
+
+<main class="layout">
+
+  <!-- ===================== LEFT: SOURCE + OPTIONS ===================== -->
+  <section class="col left-col">
+
+    <div class="card">
+      <h2><span class="step">1</span> Add your file</h2>
+
+      <div id="drop" class="dropzone" tabindex="0" role="button" aria-label="Drop an image or PDF, or click to open your files">
+        <input type="file" id="fileInput" accept="image/*,.pdf,image/png,image/jpeg,image/webp,image/bmp" multiple hidden>
+        <div class="dz-icon">&#8681;</div>
+        <div class="dz-main"><b>Drop your image here</b><br><span>or click to open your file manager</span></div>
+        <div class="dz-actions">
+          <button type="button" id="btnPaste" class="ghost" title="Paste from clipboard (Ctrl+V)">Paste</button>
+        </div>
+        <div class="dz-formats">PNG · JPG · WEBP · BMP · PDF — up to 20 MB each, multiple files supported. Nothing is uploaded.</div>
+      </div>
+      <div id="batchInfo" class="pdf-info hidden">📁 Batch mode — files will be read one after another and combined into one result.</div>
+
+      <div id="sourceView" class="source-view hidden">
+        <div class="src-preview"><canvas id="previewCanvas"></canvas></div>
+        <div class="src-meta">
+          <span id="fileName" class="fname"></span>
+          <span id="fileDims" class="dims"></span>
+          <span class="src-tools">
+            <button type="button" id="btnRotL" class="ghost sm" title="Rotate left">↺</button>
+            <button type="button" id="btnRotR" class="ghost sm" title="Rotate right">↻</button>
+            <button type="button" id="btnClear" class="ghost sm danger" title="Remove">✕</button>
+          </span>
+        </div>
+      </div>
+      <div id="pdfInfo" class="pdf-info hidden">📄 Multi-page PDF detected — all pages will be read.</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">2</span> Choose mode</h2>
+      <div class="seg" id="modeSeg" role="tablist" aria-label="OCR mode">
+        <button type="button" data-mode="print" class="seg-btn active" role="tab" aria-selected="true"><span class="seg-ic">🖨️</span>Printed</button>
+        <button type="button" data-mode="screen" class="seg-btn" role="tab"><span class="seg-ic">💻</span>Screenshot</button>
+        <button type="button" data-mode="table" class="seg-btn" role="tab"><span class="seg-ic">📊</span>Table</button>
+        <button type="button" data-mode="hand" class="seg-btn" role="tab"><span class="seg-ic">✍️</span>Handwriting</button>
+      </div>
+      <p class="hint" id="modeHint"></p>
+
+      <div class="field" id="langRow">
+        <label for="langSel">Language</label>
+        <div class="lang-pair">
+          <select id="langSel">
+            <option value="eng" selected>English</option>
+            <option value="spa">Spanish</option>
+            <option value="fra">French</option>
+            <option value="deu">German</option>
+            <option value="ita">Italian</option>
+            <option value="por">Portuguese</option>
+            <option value="nld">Dutch</option>
+            <option value="pol">Polish</option>
+            <option value="rus">Russian</option>
+            <option value="ukr">Ukrainian</option>
+            <option value="tur">Turkish</option>
+            <option value="ara">Arabic</option>
+            <option value="heb">Hebrew</option>
+            <option value="hin">Hindi</option>
+            <option value="ind">Indonesian</option>
+            <option value="vie">Vietnamese</option>
+            <option value="tha">Thai</option>
+            <option value="chi_sim">Chinese (Simplified)</option>
+            <option value="chi_tra">Chinese (Traditional)</option>
+            <option value="jpn">Japanese</option>
+            <option value="kor">Korean</option>
+            <option value="ell">Greek</option>
+            <option value="ces">Czech</option>
+            <option value="hun">Hungarian</option>
+            <option value="ron">Romanian</option>
+            <option value="swe">Swedish</option>
+            <option value="dan">Danish</option>
+            <option value="nor">Norwegian</option>
+            <option value="fin">Finnish</option>
+            <option value="amh">Amharic</option>
+          </select>
+          <select id="langSel2" aria-label="Second language (optional)">
+            <option value="" selected>None (single language)</option>
+            <option value="eng">English</option>
+            <option value="spa">Spanish</option>
+            <option value="fra">French</option>
+            <option value="deu">German</option>
+            <option value="ita">Italian</option>
+            <option value="por">Portuguese</option>
+            <option value="nld">Dutch</option>
+            <option value="pol">Polish</option>
+            <option value="rus">Russian</option>
+            <option value="ukr">Ukrainian</option>
+            <option value="tur">Turkish</option>
+            <option value="ara">Arabic</option>
+            <option value="heb">Hebrew</option>
+            <option value="hin">Hindi</option>
+            <option value="ind">Indonesian</option>
+            <option value="vie">Vietnamese</option>
+            <option value="tha">Thai</option>
+            <option value="chi_sim">Chinese (Simplified)</option>
+            <option value="chi_tra">Chinese (Traditional)</option>
+            <option value="jpn">Japanese</option>
+            <option value="kor">Korean</option>
+            <option value="ell">Greek</option>
+            <option value="ces">Czech</option>
+            <option value="hun">Hungarian</option>
+            <option value="ron">Romanian</option>
+            <option value="swe">Swedish</option>
+            <option value="dan">Danish</option>
+            <option value="nor">Norwegian</option>
+            <option value="fin">Finnish</option>
+            <option value="amh">Amharic</option>
+          </select>
+        </div>
+        <div class="langnote" id="langNote">Pick a second language for mixed documents (e.g. English + Arabic). Trained data downloads once, then stays cached.</div>
+      </div>
+
+      <div class="field">
+        <label class="chk-label" for="autoRotateChk"><input type="checkbox" id="autoRotateChk" checked> Auto-rotate sideways scans</label>
+        <div class="langnote">Detects 90°-rotated pages and turns them upright before reading.</div>
+      </div>
+
+      <div class="field" id="help">
+        <label for="enhanceSel">Image enhancement</label>
+        <select id="enhanceSel">
+          <option value="auto" selected>Auto — recommended</option>
+          <option value="otsu">Strong — for poor-quality scans</option>
+          <option value="none">None — raw image</option>
+        </select>
+        <div class="langnote">Improves accuracy before reading: <b>Auto</b> fixes contrast and enlarges small images; <b>Strong</b> turns the page black-and-white (best for dark or faded scans); <b>None</b> uses the original untouched image.</div>
+      </div>
+
+      <div class="field" id="handModelRow">
+        <label for="handModelSel">Handwriting model</label>
+        <select id="handModelSel">
+          <option value="Xenova/trocr-base-handwritten" selected>TrOCR base — most accurate (≈180 MB, slower)</option>
+          <option value="Xenova/trocr-small-handwritten">TrOCR small — faster (≈60 MB)</option>
+        </select>
+        <div class="langnote">Downloads on first use, then cached by your browser.</div>
+      </div>
+    </div>
+
+    <button type="button" id="btnRun" class="run-btn">
+      <span class="run-icon">&#128269;</span> Read text
+    </button>
+  </section>
+
+  <!-- ===================== RIGHT: RESULT ===================== -->
+  <section class="col right-col">
+    <div class="card result-card">
+      <h2><span class="step">3</span> Result</h2>
+
+      <div id="banner" class="banner hidden" role="alert"></div>
+
+      <div id="progressWrap" class="progress-wrap hidden">
+        <div class="stage"><span id="stageTxt"></span><span id="stagePct"></span></div>
+        <div class="bar"><div id="barFill" class="bar-fill"></div></div>
+        <div id="liveText" class="live-text hidden" aria-live="polite"></div>
+      </div>
+
+      <div id="baWrap" class="ba-wrap hidden">
+        <label for="baSlider"><b>Enhancement preview</b> — drag to compare</label>
+        <div class="ba-box">
+          <img id="baAfter" alt="Enhanced image used for OCR" draggable="false">
+          <div class="ba-cover" id="baCover"><img id="baBefore" alt="Original image" draggable="false"></div>
+          <input type="range" id="baSlider" min="0" max="100" value="50" aria-label="Enhancement preview slider">
+        </div>
+        <div class="langnote">The enhanced image is what the OCR engine actually reads.</div>
+      </div>
+
+      <div id="stats" class="stats hidden">
+        <span class="pill" id="statEngine"></span>
+        <span class="pill" id="statConf"></span>
+        <span class="pill" id="statTime"></span>
+        <span class="pill" id="statWords"></span>
+      </div>
+
+      <div id="outViews" class="hidden">
+        <div class="view-tabs">
+          <button type="button" class="vtab active" data-view="text">Text</button>
+          <button type="button" class="vtab hidden" data-view="table">Table</button>
+          <button type="button" class="vtab" data-view="tsv">TSV / debug</button>
+        </div>
+
+        <div id="viewText">
+          <pre id="outText" contenteditable="true" spellcheck="false" placeholder="Recognized text will appear here…"></pre>
+        </div>
+        <div id="viewTable" class="hidden">
+          <div id="outTableWrap" class="table-wrap"></div>
+        </div>
+        <div id="viewTsv" class="hidden">
+          <textarea id="outTsv" readonly spellcheck="false" placeholder="Word-level coordinates and confidence…"></textarea>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        <div class="empty-icon">🪄</div>
+        <p>Add a file and press <b>Read text</b>.<br>Printed documents, screenshots, tables and handwriting all work without a server.</p>
+      </div>
+
+      <div id="actions" class="actions hidden">
+        <button type="button" id="btnCopyTxt" class="ghost">Copy text</button>
+        <button type="button" id="btnCopyCsv" class="ghost hidden">Copy CSV</button>
+        <button type="button" id="btnDlTxt" class="ghost">Download .txt</button>
+        <button type="button" id="btnDlCsv" class="ghost hidden">Download .csv</button>
+        <button type="button" id="btnDlZip" class="ghost hidden">Download .zip (batch)</button>
+      </div>
+    </div>
+
+    <div class="card history-card">
+      <h2>🕘 Recent reads</h2>
+      <ul id="historyList" class="history">
+        <li class="history-empty">Nothing yet — your runs will appear here (kept only on this device).</li>
+      </ul>
+      <button type="button" id="btnClearHist" class="ghost sm hidden">Clear history</button>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  Built with <a href="https://github.com/naptha/tesseract.js" target="_blank" rel="noopener">Tesseract.js</a> · <a href="https://huggingface.co/transformers.js" target="_blank" rel="noopener">Transformers.js (TrOCR)</a> · <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener">PDF.js</a>. Engines load from CDN on first use and are cached by your browser afterwards.
+</footer>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
